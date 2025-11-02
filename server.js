@@ -13,10 +13,10 @@ let browser = null;
 async function startBrowser() {
   if (!browser) {
     browser = await puppeteer.launch({
-      executablePath: chromium.path, // chemin fourni par le package NPM
+      executablePath: chromium.path, // chemin correct fourni par le package
       headless: true,
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport
+      defaultViewport: chromium.defaultViewport,
     });
   }
   return browser;
@@ -35,7 +35,7 @@ async function getPriceFromMomox(barcode) {
     await page.setExtraHTTPHeaders({
       Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
       "Accept-Language": "fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7",
-      Referer: "https://www.momox.fr/"
+      Referer: "https://www.momox.fr/",
     });
 
     await page.goto(`https://www.momox.fr/offer/${barcode}`, { waitUntil: "networkidle2" });
