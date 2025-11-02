@@ -1,35 +1,45 @@
-const express = require('express');
-const axios = require('axios');
-const cheerio = require('cheerio');
-const cors = require('cors');
+const express = require("express");
+const axios = require("axios");
+const cheerio = require("cheerio");
+const cors = require("cors");
 
 const app = express();
-app.use(cors()); // autorise tout le monde, ou spécifie origin
 const PORT = process.env.PORT || 3000;
 
-async function getMomoxBuyPrice(isbn) {
-    try {
-        const url = `https://www.momox-shop.fr/verkaufen/ISBN${isbn}`;
-        const response = await axios.get(url, {
-            headers: { 'User-Agent': 'Mozilla/5.0' }
-        });
-        const $ = cheerio.load(response.data);
-        let price = $('span.price-amount').first().text().trim();
-        if (price) {
-            price = price.replace('€', '').replace(',', '.').trim();
-            return parseFloat(price);
-        }
-        return null;
-    } catch (err) {
-        console.error('Erreur récupération prix:', err.message);
-        return null;
-    }
-}
+app.use(cors());
 
-app.get('/get-price/:isbn', async (req, res) => {
-    const isbn = req.params.isbn;
-    const price = await getMomoxBuyPrice(isbn);
-    res.json({ price });
+/* ===========================
+   ROUTE: récupération prix
+=========================== */
+app.get("/get-price/:barcode", async (req, res) => {
+  const barcode = req.params.barcode;
+  if (!barcode) return res.status(400).json({ price: null });
+
+  try {
+    const url = `https://www.momox.fr/offer/${barcode}`;
+    const response = await axios.get(url, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+    });
+
+    const html = response.data;
+    const $ = cheerio.load(html);
+
+    // On cherche la div avec la classe indiquée
+    const priceText = $("div.searchresult-price.text-center.text-xxl.font-medium").first().text().trim();
+
+    if (priceText) {
+      // Nettoyage du texte : on garde uniquement le nombre avec le point décimal
+      const price = parseFloat(priceText.replace("€", "").replace(",", ".").trim());
+      res.json({ price });
+    } else {
+      res.json({ price: false });
+    }
+  } catch (err) {
+    console.error("Erreur récupération prix:", err.message);
+    res.json({ price: false });
+  }
 });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Serveur Node.js en ligne sur le port ${PORT}`);
+});
