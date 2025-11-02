@@ -4,10 +4,9 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 
 const app = express();
-app.use(cors()); // autorise le front-end à faire des requêtes
-const PORT = 3000;
+app.use(cors()); // autorise tout le monde, ou spécifie origin
+const PORT = process.env.PORT || 3000;
 
-// Fonction pour récupérer le prix sur Momox
 async function getMomoxBuyPrice(isbn) {
     try {
         const url = `https://www.momox-shop.fr/verkaufen/ISBN${isbn}`;
@@ -27,11 +26,10 @@ async function getMomoxBuyPrice(isbn) {
     }
 }
 
-// Endpoint API
 app.get('/get-price/:isbn', async (req, res) => {
     const isbn = req.params.isbn;
     const price = await getMomoxBuyPrice(isbn);
     res.json({ price });
 });
 
-app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
