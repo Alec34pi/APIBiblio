@@ -16,7 +16,7 @@ let browser = null;
 async function startBrowser() {
   if (!browser) {
     browser = await puppeteer.launch({
-      executablePath: await chromium.executablePath(), // Binaire Chromium compatible Render
+      executablePath: chromium.path, // ✅ plus de fonction
       headless: true,
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
