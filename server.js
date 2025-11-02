@@ -15,8 +15,9 @@ let browser = null;
 async function startBrowser() {
   if (!browser) {
     browser = await puppeteer.launch({
+    executablePath: "/usr/bin/chromium-browser",
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"]
+      args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"]
     });
   }
   return browser;
